@@ -2,12 +2,31 @@
 #include <GL/gl.h>
 #include <leif/leif.h>
 
+
+
+typedef enum{
+    ALL = 0,
+    PENDING,
+    COMPLETED,
+} entry_filter;
+
+typedef struct{
+    char* title;
+    char* description *date; 
+    bool completed;
+}  task_entry;
+
 #define WIN_MARGIN 20.0f
 
 //assaging window size
 static int winw = 1280, winh = 720 ;
 //adding text
 static LfFont titlefont;
+static entry_filter current_filter ;
+static task_entry* entries[1024];
+static uint32_t numentries = 0;
+
+
 
 //topbar
 static void Topbar(){
@@ -40,7 +59,52 @@ static void Topbar(){
 }
 
 
+// funtion of categorize the tasks
+static void categorize(){   
+            const uint32_t filter_count = 3;
+            static const char* filter_options[] = {"All", "Pending", "Completed"};
 
+
+            LfUIElementProps props = lf_get_theme().text_props;
+            props.margin_top = 15.0f;
+            props.margin_left = 10.0f;
+            props.margin_right = 10.0f;
+            props.padding = 10.0f;
+            props.border_width = 0.0f;
+            props.corner_radius = 8.0f;
+            props.color = LF_NO_COLOR;
+            props.text_color = LF_WHITE;   
+
+
+            float width = 0.0f;
+            float ptrx_before = lf_get_ptr_x();
+            float ptry_before = lf_get_ptr_y();
+            lf_push_style_props(props);
+            lf_set_no_render(true);
+            lf_set_ptr_y_absolute (lf_get_ptr_y() +30.0f);
+
+            for(uint32_t i =0; i< filter_count; i++){
+                lf_button(filter_options[i]);
+            }
+            lf_set_no_render(false);
+            lf_set_ptr_y_absolute(ptry_before);
+
+            width = lf_get_ptr_x() - ptrx_before - props.margin_right - props.padding;
+            
+            lf_set_ptr_x_absolute(winw - width - WIN_MARGIN * 3.0f);
+
+            lf_set_line_should_overflow(false);
+            for(uint32_t i =0; i< filter_count; i++){
+            props.color = (current_filter == i) ? (LfColor){65,167,204,255} : LF_NO_COLOR; // colour of tag
+            lf_push_style_props(props);
+            if(lf_button(filter_options[i]) == LF_CLICKED) {
+                current_filter = (entry_filter)i;
+            }
+            lf_pop_style_props();
+
+            }
+            lf_set_line_should_overflow(true);
+        }
 
 
 
@@ -61,6 +125,13 @@ int main(){
 
     titlefont = lf_load_font("./fonts/inter-bold.ttf", 35.0f); //loading font
 
+    task_entry* entry = (task_entry*)malloc(sizeof(*entry));
+    entry->completed = false;
+    entry->date = "nothing";
+    entry->description = "New doc in C";
+    entry->title = "C project"
+    entries[numentries++] = entries ;
+
     while (!glfwWindowShouldClose(window)) {
         glClear(GL_COLOR_BUFFER_BIT);
         glClearColor(0.0, 0.0, 0.0, 1.0); //adding colour to the background
@@ -70,35 +141,13 @@ int main(){
 
 
         Topbar();
-        {   
-            const uint32_t filter_count = 3;
-            static const char* filter_options[] = {"All", "Pending", "Completed"};
 
+        lf_next_line();
 
-            LfUIElementProps props = lf_get_theme().text_props;
-            props.margin_top = 20.0f;
-            props.margin_left = 30.0f;   
-            float width = 0.0f;
-            float ptrx_before = lf_get_ptr_x();
-            lf_push_style_props(props);
-            lf_set_no_render(true);
-            for(uint32_t i =0; i< filter_count; i++){
-                lf_button(filter_options[i]);
-            }
-            lf_set_no_render(false);
-
-            width = lf_get_ptr_x() - ptrx_before - props.margin_right - props.padding;
-
-            lf_set_ptr_x_absolute(winw - width - WIN_MARGIN * 4.0f);
-
-
-            for(uint32_t i =0; i< filter_count; i++){
-
-            lf_push_style_props(props);
-            lf_button(filter_options[i]);
-            lf_pop_style_props();
-
-            }
+        categorize();
+            //todo next
+        {
+            lf_div_begin(((vec2s){0.0f, 0.0f}), ((vec2s){winw - WIN_MARGIN * 2.0f, winh - WIN_MARGIN * 2.0f}), true);
         }
 
         lf_div_end();
