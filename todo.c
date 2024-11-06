@@ -6,30 +6,13 @@
 
 //assaging window size
 static int winw = 1280, winh = 720 ;
+//adding text
 static LfFont titlefont;
 
-int main(){
-    glfwInit();
+//topbar
+static void Topbar(){
 
-    GLFWwindow* window = glfwCreateWindow(winw, winh, "Todo-App", NULL, NULL); //creating a window
-    glfwMakeContextCurrent(window);
-
-    lf_init_glfw(winw, winh, window); // frame size in leif
-
-    LfTheme theme = lf_get_theme();
-    theme.div_props.color = LF_NO_COLOR;
-    lf_set_theme(theme);
-
-    titlefont = lf_load_font("./fonts/inter-bold.ttf", 35.0f); //loading font
-
-    while (!glfwWindowShouldClose(window)) {
-        glClear(GL_COLOR_BUFFER_BIT);
-        glClearColor(0.0, 0.0, 0.0, 1.0); //adding colour to the background
-
-        lf_begin();
-        lf_div_begin(((vec2s){WIN_MARGIN, WIN_MARGIN}), ((vec2s){winw - WIN_MARGIN * 2.0f, winh - WIN_MARGIN * 2.0f}),true); // setting margin
-
-        lf_push_font(&titlefont);
+    lf_push_font(&titlefont);
         lf_text("Todo-App");
         lf_pop_font();
 
@@ -54,15 +37,72 @@ int main(){
         }
 
 
+}
 
 
 
 
 
+
+
+
+//main function
+int main(){
+    glfwInit();
+
+    GLFWwindow* window = glfwCreateWindow(winw, winh, "Todo-App", NULL, NULL); //creating a window
+    glfwMakeContextCurrent(window);
+
+    lf_init_glfw(winw, winh, window); // frame size in leif
+
+    LfTheme theme = lf_get_theme();
+    theme.div_props.color = LF_NO_COLOR;
+    lf_set_theme(theme);
+
+    titlefont = lf_load_font("./fonts/inter-bold.ttf", 35.0f); //loading font
+
+    while (!glfwWindowShouldClose(window)) {
+        glClear(GL_COLOR_BUFFER_BIT);
+        glClearColor(0.0, 0.0, 0.0, 1.0); //adding colour to the background
+
+        lf_begin();
+        lf_div_begin(((vec2s){WIN_MARGIN, WIN_MARGIN}), ((vec2s){winw - WIN_MARGIN * 2.0f, winh - WIN_MARGIN * 2.0f}),true); // setting margin
+
+
+        Topbar();
+        {   
+            const uint32_t filter_count = 3;
+            static const char* filter_options[] = {"All", "Pending", "Completed"};
+
+
+            LfUIElementProps props = lf_get_theme().text_props;
+            props.margin_top = 20.0f;
+            props.margin_left = 30.0f;   
+            float width = 0.0f;
+            float ptrx_before = lf_get_ptr_x();
+            lf_push_style_props(props);
+            lf_set_no_render(true);
+            for(uint32_t i =0; i< filter_count; i++){
+                lf_button(filter_options[i]);
+            }
+            lf_set_no_render(false);
+
+            width = lf_get_ptr_x() - ptrx_before - props.margin_right - props.padding;
+
+            lf_set_ptr_x_absolute(winw - width - WIN_MARGIN * 4.0f);
+
+
+            for(uint32_t i =0; i< filter_count; i++){
+
+            lf_push_style_props(props);
+            lf_button(filter_options[i]);
+            lf_pop_style_props();
+
+            }
+        }
 
         lf_div_end();
         lf_end();
-
 
         glfwSwapBuffers(window);
         glfwPollEvents();
