@@ -4,7 +4,7 @@
 
 // Define a structure for each task in the to-do list
 struct node {
-    char task[100];          // Task description
+    char task[100];          // Task desc
     int status;              // 0 for pending, 1 for completed
     int date;                // Date in YYYYMMDD format
     struct node* link;       // Link to the next node

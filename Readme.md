@@ -33,6 +33,7 @@ This is a simple Todo application written in C. It is designed to be run on a Li
 
 Run the application:
 ```sh
+gcc -o todo todo.c -lglfw -lGL -lleif -lclipboard -lm -lxcb
 ./todo
 ```
 
